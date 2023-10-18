@@ -1,8 +1,8 @@
+#!/usr/bin/env python3
 """
 Ask questions about a news article using LLMs
 """
 
-import os
 import sys
 import argparse
 from dotenv import load_dotenv
@@ -19,6 +19,8 @@ def cmdline_args():
                                 )
     
     p.add_argument("article", help="URL to article")
+    p.add_argument("-v", "--verbose", action="store_true", default=False,
+                   help="enable verbose output")
 
     return(p.parse_args())
 
@@ -34,7 +36,7 @@ def chat_loop(pdf_qa):
     while True:
         query = input(f"{GREEN}Prompt: ")
         if query == "exit" or query == "quit" or query == "q" or query == "f":
-            print('Exiting')
+            print(f'{WHITE}Exiting')
             sys.exit()
         if query == '':
             continue
@@ -64,10 +66,10 @@ if __name__ == '__main__':
     #vectordb.persist()
 
     # create our Q&A chain
-    pdf_qa = ConversationalRetrievalChain.from_llm(
+    article_qa = ConversationalRetrievalChain.from_llm(
         ChatOpenAI(temperature=0.7, model_name='gpt-3.5-turbo'),
         retriever=vectordb.as_retriever(search_kwargs={'k': 6}),
         return_source_documents=True,
-        verbose=False
+        verbose=args.verbose
     )
-    chat_loop(pdf_qa)
+    chat_loop(article_qa)
