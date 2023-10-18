@@ -30,9 +30,6 @@ WHITE = "\033[0;39m"
 
 def chat_loop(pdf_qa):
     chat_history = []
-    print(f"{YELLOW}---------------------------------------------------------------------------------")
-    print('Welcome to the DocBot. You are now ready to start interacting with your documents')
-    print('---------------------------------------------------------------------------------')
     while True:
         query = input(f"{GREEN}Prompt: ")
         if query == "exit" or query == "quit" or query == "q" or query == "f":
@@ -56,6 +53,9 @@ if __name__ == '__main__':
     data = loader.load()
     articles.extend(data)
 
+    title = data[0].metadata['title']
+    source = data[0].metadata['source']
+
     # Split the documents into smaller chunks
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=10)
     articles = text_splitter.split_documents(articles)
@@ -67,9 +67,14 @@ if __name__ == '__main__':
 
     # create our Q&A chain
     article_qa = ConversationalRetrievalChain.from_llm(
-        ChatOpenAI(temperature=0.7, model_name='gpt-3.5-turbo'),
+        ChatOpenAI(temperature=0.7, model_name='gpt-3.5-turbo', verbose=args.verbose),
         retriever=vectordb.as_retriever(search_kwargs={'k': 6}),
         return_source_documents=True,
         verbose=args.verbose
     )
+    print(f"{YELLOW}---------------------------------------------------------------------------------")
+    print('Welcome to ArticleBot.  You can ask questions about the following:')
+    print(f'Article: {title}')
+    print(f'Source: {source}')
+    print('---------------------------------------------------------------------------------')
     chat_loop(article_qa)
