@@ -12,6 +12,7 @@ from langchain.vectorstores import Chroma
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
 from langchain.prompts import PromptTemplate
+from langchain.memory import ConversationBufferMemory
 from langchain.text_splitter import CharacterTextSplitter
 
 def cmdline_args():
@@ -30,7 +31,6 @@ GREEN = "\033[0;32m"
 WHITE = "\033[0;39m"
 
 def chat_loop(qa_chain):
-    chat_history = []
     while True:
         query = input(f"{GREEN}Prompt: ")
         if query == "exit" or query == "quit" or query == "q" or query == "f":
@@ -39,9 +39,8 @@ def chat_loop(qa_chain):
         if query == '':
             continue
         result = qa_chain(
-        {"question": query, "chat_history": chat_history})
+        {"question": query})
         print(f"{WHITE}Answer: " + result["answer"])
-        chat_history.append((query, result["answer"]))
 
 if __name__ == '__main__':
     load_dotenv('.env')
@@ -82,6 +81,9 @@ if __name__ == '__main__':
         combine_docs_chain_kwargs={"prompt": prompt},
         verbose=args.verbose
     )
+    article_qa.memory = ConversationBufferMemory(memory_key='chat_history', 
+                                                 return_messages=True, 
+                                                 output_key='answer')
     print(f"{YELLOW}---------------------------------------------------------------------------------")
     print('Welcome to ArticleBot.  You can ask questions about the following:')
     print(f'Article: {title}')
