@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """
 Ask questions about a news article using LLMs
+
+How to use:
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt to get deps
+set OPENAI_API_KEY in .env
+
+./qa.py --help for usage
 """
 
 import sys
