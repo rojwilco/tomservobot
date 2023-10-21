@@ -15,6 +15,17 @@ from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 from langchain.text_splitter import CharacterTextSplitter
 
+
+YELLOW = "\033[0;33m"
+GREEN = "\033[0;32m"
+WHITE = "\033[0;39m"
+
+PERSONALITY_MAP = {
+    'servo': {'name': 'Tom Servo', 'description': 'Tom Servo from MST3k'},
+    'gomez': {'name': 'Gomez Addams', 'description': 'Gomez Addams from The Addams Family movies'}
+}
+PERSONALITY_TEXT = "in the style of "
+
 def cmdline_args():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter
@@ -23,12 +34,11 @@ def cmdline_args():
     p.add_argument("article", help="URL to article")
     p.add_argument("-v", "--verbose", action="store_true", default=False,
                    help="enable verbose output")
+    p.add_argument("-p", "--personality", type=str, choices=PERSONALITY_MAP.keys(), default=None,
+                   help="choose which personality to use for answers")
 
     return(p.parse_args())
 
-YELLOW = "\033[0;33m"
-GREEN = "\033[0;32m"
-WHITE = "\033[0;39m"
 
 def chat_loop(qa_chain):
     while True:
@@ -45,7 +55,14 @@ def chat_loop(qa_chain):
 if __name__ == '__main__':
     load_dotenv('.env')
     args = cmdline_args()
-
+    
+    # set up personality strings (if enabled)
+    if args.personality:
+        personality_name = PERSONALITY_MAP[args.personality]["name"]
+        personality_string = PERSONALITY_TEXT + PERSONALITY_MAP[args.personality]['description']
+    else:
+        personality_name = "Default"
+        personality_string = ""
 
     articles = []
     # Load an article from a URL
@@ -66,13 +83,15 @@ if __name__ == '__main__':
     #vectordb.persist()
 
     # create our Q&A chain
-    prompt_template = """Use the following pieces of context to answer the question at the end in the style of the character Tom Servo from MST3k. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+    prompt_template = """Use the following pieces of context to answer the question at the end {personality_string}. If you don't know the answer, just say that you don't know, don't try to make up an answer.
     
     {context}
     
     Question: {question}
     Helpful Answer:"""
-    prompt = PromptTemplate(input_variables=["context", "question"], template=prompt_template)
+    prompt = PromptTemplate(input_variables=["context", "question"], 
+                            template=prompt_template,
+                            partial_variables={"personality_string": personality_string})
     llm = ChatOpenAI(temperature=0.7, model_name='gpt-3.5-turbo', verbose=args.verbose)
     article_qa = ConversationalRetrievalChain.from_llm(
         llm=llm,
@@ -88,5 +107,6 @@ if __name__ == '__main__':
     print('Welcome to ArticleBot.  You can ask questions about the following:')
     print(f'Article: {title}')
     print(f'Source: {source}')
+    print(f'Personality: {personality_name}')
     print('---------------------------------------------------------------------------------')
     chat_loop(article_qa)
