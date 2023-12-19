@@ -121,8 +121,8 @@ stderr_handler.setFilter(lambda record: record.levelno >= logging.WARN)
 # File handler - disabled for container deployment
 #file_handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 #file_handler_formatter = logging.Formatter(
-    "[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{"
-)
+#    "[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{"
+#)
 #file_handler.setFormatter(file_handler_formatter)
 
 # Add the handlers
