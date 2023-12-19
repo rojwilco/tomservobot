@@ -109,19 +109,26 @@ class LoggingFormatter(logging.Formatter):
 logger = logging.getLogger("discord_bot")
 logger.setLevel(logging.INFO)
 
-# Console handler
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(LoggingFormatter())
-# File handler
-file_handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
-file_handler_formatter = logging.Formatter(
+# Console handlers - WARN and above (worse) goes to stderr, below goes to stdout
+stdout_handler = logging.StreamHandler(stream=sys.stdout)
+stdout_handler.setFormatter(LoggingFormatter())
+stdout_handler.setFilter(lambda record: record.levelno < logging.WARN)
+stderr_handler = logging.StreamHandler(stream=sys.stderr)
+stderr_handler.setFormatter(LoggingFormatter())
+stderr_handler.setFilter(lambda record: record.levelno >= logging.WARN)
+
+
+# File handler - disabled for container deployment
+#file_handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+#file_handler_formatter = logging.Formatter(
     "[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{"
 )
-file_handler.setFormatter(file_handler_formatter)
+#file_handler.setFormatter(file_handler_formatter)
 
 # Add the handlers
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
+logger.addHandler(stderr_handler)
+logger.addHandler(stdout_handler)
+#logger.addHandler(file_handler)
 
 
 class DiscordBot(commands.Bot):
