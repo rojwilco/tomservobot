@@ -1,4 +1,10 @@
-aiohttp
-aiosqlite
-discord.py
-python-dotenv
+aiohttp==3.8.5
+aiosqlite==0.19.0
+discord.py==2.3.2
+chromadb==0.4.14
+langchain==0.0.317
+openai==0.28.1
+selenium==4.14.0
+unstructured==0.10.24
+tiktoken==0.5.1
+python-dotenv==1.0.0
