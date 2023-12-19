@@ -112,10 +112,10 @@ logger.setLevel(logging.INFO)
 # Console handlers - WARN and above (worse) goes to stderr, below goes to stdout
 stdout_handler = logging.StreamHandler(stream=sys.stdout)
 stdout_handler.setFormatter(LoggingFormatter())
-stdout_handler.setFilter(lambda record: record.levelno < logging.WARN)
+stdout_handler.addFilter(lambda record: record.levelno < logging.WARN)
 stderr_handler = logging.StreamHandler(stream=sys.stderr)
 stderr_handler.setFormatter(LoggingFormatter())
-stderr_handler.setFilter(lambda record: record.levelno >= logging.WARN)
+stderr_handler.addFilter(lambda record: record.levelno >= logging.WARN)
 
 
 # File handler - disabled for container deployment
